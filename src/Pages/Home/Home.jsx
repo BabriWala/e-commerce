@@ -10,23 +10,46 @@ import { useState } from "react";
 
 const Home = () => {
   const [categories, setCategories] = useState([]);
-
-  const subCategories = categories.map((categories) => categories.sub_category);
-  const newSubCategories = subCategories.flatMap((e) => e);
-  const subCategoriesItem = newSubCategories.map((categories) => categories.items);
-  const newSubCategoriesItem = subCategoriesItem.flatMap((e) => e);
-  
+  const [isLoading, setLoading] = useState(true);
+  const [subCategories, setSubCategories] = useState([]);
+  // const subCategories = categories.map((categories) => categories.sub_category);
+  // const newSubCategories = subCategories.flatMap((e) => e);
+  const [subCategoriesItem, setCategoriesItem] = useState([]);
+  // const subCategoriesItem = newSubCategories.map((categories) => categories.items);
+  // const newSubCategoriesItem = subCategoriesItem.flatMap((e) => e);
 
   useEffect(() => {
-    fetch("https://grocerywatch.herokuapp.com/market/data/")
+    fetch("../../../index.json")
       .then((res) => res.json())
-      .then((data) => setCategories(data.categories));
+      .then((data) => {
+        setCategories(data.categories);
+        setSubCategories(data.categories[0].sub_category);
+        setCategoriesItem(data.categories[0].sub_category[0].items);
+        setLoading(false);
+      });
   }, []);
 
-  
+  // console.log(subCategories)
+  const handleCategories = (id) => {
+    const selectedCategory = categories.filter(
+      (category) => category.id === id
+    );
+    setSubCategories(selectedCategory[0].sub_category);
+    // console.log(subCategories)
+    // console.log(selectedCategory)
+    setCategoriesItem(selectedCategory[0].sub_category[0].items);
+    // console.log(subCategoriesItem)
+  };
+  const handldleSubCategories = (id) => {
+    const selectedSubCategory = subCategories.filter(
+      (category) => category.id === id
+    );
+    // console.log(subCategories)
+    // console.log(selectedSubCategory[0].items);
+    setCategoriesItem(selectedSubCategory[0].items);
+  };
 
-
-  if (!categories) {
+  if (isLoading) {
     return <h2>Loading</h2>;
   }
 
@@ -50,7 +73,11 @@ const Home = () => {
         <h2>Categories</h2>
         <div className="categories-item">
           {categories.map((category) => (
-            <button key={category.id} className="">
+            <button
+              key={category.id}
+              className=""
+              onClick={() => handleCategories(category.id)}
+            >
               <img src={category.image} />
               <span>{category.name}</span>
             </button>
@@ -61,9 +88,11 @@ const Home = () => {
       <section id="sub-categories" className="container">
         <h2>Sub-Cateogories</h2>
         <div className="sub-categories-item">
-          {newSubCategories.map((subCategories) => (
-
-            <button className="">
+          {subCategories.map((subCategories) => (
+            <button
+              className=""
+              onClick={() => handldleSubCategories(subCategories.id)}
+            >
               <img src={subCategories.image} />
               <span>{subCategories.name}</span>
             </button>
@@ -75,16 +104,16 @@ const Home = () => {
         <h2>Items</h2>
         <span className="items-underline"></span>
         <div className="items-container">
-            {
-                newSubCategoriesItem.map(item => <div className="items-container-item">
-                <img src={item.image} />
-                <h3>{item.name}</h3>
-                <div>
-                  <span>${item.price}</span>
-                  <button>Add to cart</button>
-                </div>
-              </div>)
-            }
+          {subCategoriesItem.map((item) => (
+            <div className="items-container-item">
+              <img src={item.image} />
+              <h3>{item.name}</h3>
+              <div>
+                <span>${item.price}</span>
+                <button>Add to cart</button>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </div>
