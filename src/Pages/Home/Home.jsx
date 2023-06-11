@@ -17,14 +17,19 @@ const Home = () => {
   const [subCategoriesItem, setCategoriesItem] = useState([]);
   // const subCategoriesItem = newSubCategories.map((categories) => categories.items);
   // const newSubCategoriesItem = subCategoriesItem.flatMap((e) => e);
+  const [active, setActive] = useState("");
+  const [active2, setActive2] = useState("");
 
   useEffect(() => {
-    fetch("../../../index.json")
+    fetch("https://grocerywatch.herokuapp.com/market/data/")
       .then((res) => res.json())
       .then((data) => {
         setCategories(data.categories);
         setSubCategories(data.categories[0].sub_category);
         setCategoriesItem(data.categories[0].sub_category[0].items);
+        console.log(categories)
+        setActive(data.categories[0].id)
+        setActive2(data.categories[0].sub_category[0].id)
         setLoading(false);
       });
   }, []);
@@ -75,8 +80,12 @@ const Home = () => {
           {categories.map((category) => (
             <button
               key={category.id}
-              className=""
-              onClick={() => handleCategories(category.id)}
+              className={category.id === active ? 'active' : ''}
+              onClick={() => {
+                handleCategories(category.id);
+                setActive(category.id);
+                setActive2(category.sub_category[0].id);
+              }}
             >
               <img src={category.image} />
               <span>{category.name}</span>
@@ -90,8 +99,12 @@ const Home = () => {
         <div className="sub-categories-item">
           {subCategories.map((subCategories) => (
             <button
-              className=""
-              onClick={() => handldleSubCategories(subCategories.id)}
+              className={subCategories.id === active2 ? 'active' : ''}
+              onClick={() => {
+                handldleSubCategories(subCategories.id)
+                // setActive(subCategories.id);
+                setActive2(subCategories.id)
+              }}
             >
               <img src={subCategories.image} />
               <span>{subCategories.name}</span>
